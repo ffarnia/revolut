@@ -20,22 +20,30 @@ public class RestHandler {
 
     public static HttpHandler handleCreateAccount() throws IOException {
         return exchange -> {
-            Account requestAccount = mapper.readValue(exchange.getRequestBody(), Account.class);
-            service.saveOrUpdate(requestAccount);
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, -1);
+            if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                Account requestAccount = mapper.readValue(exchange.getRequestBody(), Account.class);
+                service.saveOrUpdate(requestAccount);
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(201, -1); //Created
+            } else {
+                exchange.sendResponseHeaders(405, -1); //Method not allowed
+            }
             exchange.close();
         };
     }
 
     public static HttpHandler handleFetchAllAccount() throws IOException {
         return exchange -> {
-            List<Account> accounts = service.fetchAllAccounts();
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, mapper.writeValueAsBytes(accounts).length);
-            OutputStream output = exchange.getResponseBody();
-            output.write(mapper.writeValueAsBytes(accounts));
-            output.flush();
+            if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+                List<Account> accounts = service.fetchAllAccounts();
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, mapper.writeValueAsBytes(accounts).length);
+                OutputStream output = exchange.getResponseBody();
+                output.write(mapper.writeValueAsBytes(accounts));
+                output.flush();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
             exchange.close();
         };
 
@@ -43,10 +51,14 @@ public class RestHandler {
 
     public static HttpHandler handleTransferMoney() throws IOException {
         return exchange -> {
-            Transaction requestTransaction = mapper.readValue(exchange.getRequestBody(), Transaction.class);
-            service.transferMoney(requestTransaction);
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, -1);
+            if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                Transaction requestTransaction = mapper.readValue(exchange.getRequestBody(), Transaction.class);
+                service.transferMoney(requestTransaction);
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, -1);
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
             exchange.close();
         };
     }
