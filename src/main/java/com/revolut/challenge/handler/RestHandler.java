@@ -1,10 +1,8 @@
 package com.revolut.challenge.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.revolut.challenge.model.Account;
-import com.revolut.challenge.model.ResponseError;
-import com.revolut.challenge.model.RevolutException;
-import com.revolut.challenge.model.Transaction;
+import com.revolut.challenge.config.RevolutConfig;
+import com.revolut.challenge.model.*;
 import com.revolut.challenge.service.ServiceImpl;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -23,23 +21,21 @@ public class RestHandler {
 
     public static HttpHandler handleCreateAccount() {
         return exchange -> {
-            if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+            if (exchange.getRequestMethod().equalsIgnoreCase(RevolutConfig.REQUEST_METHOD_POST)) {
                 Account requestAccount = null;
                 try {
                     requestAccount = mapper.readValue(exchange.getRequestBody(), Account.class);
                 } catch (IOException e) {
-                    exchange.getResponseHeaders().set("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(ResponseStatus.BAD_REQUEST.getCode(), -1);
                 }
                 try {
                     service.saveOrUpdate(requestAccount);
                 } catch (RevolutException e) {
                     sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()));
                 }
-                exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(201, -1); //Created
+                exchange.sendResponseHeaders(ResponseStatus.CREATED.getCode(), -1);
             } else {
-                exchange.sendResponseHeaders(405, -1); //Method not allowed
+                exchange.sendResponseHeaders(ResponseStatus.METHOD_NOT_ALLOWED.getCode(), -1);
             }
             exchange.close();
         };
@@ -47,7 +43,7 @@ public class RestHandler {
 
     public static HttpHandler handleFetchAllAccount() throws IOException {
         return exchange -> {
-            if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+            if (exchange.getRequestMethod().equalsIgnoreCase(RevolutConfig.REQUEST_METHOD_GET)) {
                 List<Account> accounts = null;
                 try {
                     accounts = service.loadAllAccounts();
@@ -56,32 +52,29 @@ public class RestHandler {
                 }
                 sendResponse(exchange, accounts);
             } else {
-                exchange.sendResponseHeaders(405, -1);
+                exchange.sendResponseHeaders(ResponseStatus.METHOD_NOT_ALLOWED.getCode(), -1);
             }
             exchange.close();
         };
-
     }
 
     public static HttpHandler handleTransferMoney() {
         return exchange -> {
-            if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+            if (exchange.getRequestMethod().equalsIgnoreCase(RevolutConfig.REQUEST_METHOD_POST)) {
                 Transaction requestTransaction = null;
                 try {
                     requestTransaction = mapper.readValue(exchange.getRequestBody(), Transaction.class);
                 } catch (IOException e) {
-                    exchange.getResponseHeaders().set("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(400, -1);
+                    exchange.sendResponseHeaders(ResponseStatus.BAD_REQUEST.getCode(), -1);
                 }
                 try {
                     service.transferMoney(requestTransaction);
                 } catch (RevolutException e) {
                     sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()));
                 }
-                exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, -1);
+                exchange.sendResponseHeaders(ResponseStatus.OK.getCode(), -1);
             } else {
-                exchange.sendResponseHeaders(405, -1);
+                exchange.sendResponseHeaders(ResponseStatus.METHOD_NOT_ALLOWED.getCode(), -1);
             }
             exchange.close();
         };
@@ -89,8 +82,8 @@ public class RestHandler {
 
     private static void sendResponse(HttpExchange exchange, Object responseEntity) throws IOException {
         byte[] response = mapper.writeValueAsBytes(responseEntity);
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(200, response.length);
+        exchange.getResponseHeaders().set(RevolutConfig.CONTENT_TYPE, RevolutConfig.CONTENT_TYPE_VALUE);
+        exchange.sendResponseHeaders(ResponseStatus.OK.getCode(), response.length);
         OutputStream output = exchange.getResponseBody();
         output.write(response);
         output.flush();
