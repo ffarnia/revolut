@@ -1,6 +1,7 @@
 package com.revolut.challenge.service;
 
 import com.revolut.challenge.model.Account;
+import com.revolut.challenge.model.Transaction;
 import com.revolut.challenge.repository.InMemoryRepository;
 
 import java.util.List;
@@ -8,11 +9,11 @@ import java.util.List;
 /**
  * Created by Fazel on 12/11/2019.
  */
-public class Service {
+public class ServiceImpl {
 
     private final InMemoryRepository repository;
 
-    public Service() {
+    public ServiceImpl() {
         repository = new InMemoryRepository();
     }
 
@@ -28,8 +29,13 @@ public class Service {
         return repository.loadByAccountNumber(accountNumber);
     }
 
-    public void transferMoney(Integer fromAccount, Integer toAccount, Integer amount) {
-
+    public void transferMoney(Transaction transaction) {
+        Account fromAccount = repository.loadByAccountNumber(transaction.getFromAccountNumber());
+        Account toAccount = repository.loadByAccountNumber(transaction.getToAccountNumber());
+        fromAccount.setBalance(fromAccount.getBalance() - transaction.getAmount());
+        toAccount.setBalance(toAccount.getBalance() + transaction.getAmount());
+        saveOrUpdate(fromAccount);
+        saveOrUpdate(toAccount);
     }
 
 }
