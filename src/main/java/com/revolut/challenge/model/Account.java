@@ -9,4 +9,8 @@ public class Account {
     private String ownerName;
     private Integer balance;
 
+    public Integer getAccountNumber() {
+        return accountNumber;
+    }
+
 }
