@@ -25,10 +25,6 @@ public class ServiceImpl {
         return  repository.loadAllAccounts();
     }
 
-    public Account fetchAccountByNumber(Integer accountNumber) {
-        return repository.loadByAccountNumber(accountNumber);
-    }
-
     public void transferMoney(Transaction transaction) {
         Account fromAccount = repository.loadByAccountNumber(transaction.getFromAccountNumber());
         Account toAccount = repository.loadByAccountNumber(transaction.getToAccountNumber());
