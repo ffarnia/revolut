@@ -6,7 +6,6 @@ import com.revolut.challenge.config.RevolutApplication;
 import com.revolut.challenge.config.RevolutConfig;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.ResponseStatus;
-import com.revolut.challenge.model.RevolutException;
 import com.revolut.challenge.model.Transaction;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,6 +34,7 @@ public class RestHandlerTest {
     private static final String BASE_URL = "http://127.0.0.1:8085";
     private static ObjectMapper mapper = new ObjectMapper();
     private static HttpURLConnection conn;
+    private static final Logger LOGGER = Logger.getLogger(RestHandlerTest.class.getName());
 
     @Before
     public void init() {
@@ -54,7 +56,7 @@ public class RestHandlerTest {
     }
 
     @Test
-    public void  checkRepositoryItems() throws IOException {
+    public void checkRepositoryItems() throws IOException {
         doPost(RevolutConfig.LOAD_ALL_ACCOUNT_ENDPOINT, "", RevolutConfig.REQUEST_METHOD_GET);
         List<Account> accounts = mapper.readValue(conn.getInputStream(), ArrayList.class);
         assertEquals(ResponseStatus.OK.getCode(), conn.getResponseCode());
@@ -73,35 +75,35 @@ public class RestHandlerTest {
     public void transferMoney_whenSameAccountNumberGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 100, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(),conn.getResponseCode());
+        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
     }
 
     @Test
     public void transferMoney_whenInvalidFromAccountNumberGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(101, 200, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(),conn.getResponseCode());
+        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
     }
 
     @Test
     public void transferMoney_whenInvalidToAccountNumberGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 202, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(),conn.getResponseCode());
+        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
     }
 
     @Test
     public void transferMoney_whenWithdrawMoreThanBalanceGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 200, 4001);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(),conn.getResponseCode());
+        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
     }
 
     @Test
     public void transferMoney_whenInvalidAmountGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 200, -1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(),conn.getResponseCode());
+        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
     }
 
     private Account createSampleAccount(Integer accountNumber, Integer balance, String ownerName) {
@@ -122,8 +124,9 @@ public class RestHandlerTest {
     }
 
     private String createRequestJsonBody(Object input) throws JsonProcessingException {
-        return  mapper.writeValueAsString(input);
+        return mapper.writeValueAsString(input);
     }
+
     private void postEntityTransactionForMoneyTransfer(Transaction transaction) throws JsonProcessingException {
         doPost(RevolutConfig.TRANSFER_MONEY_ENDPOINT, createRequestJsonBody(transaction), RevolutConfig.REQUEST_METHOD_POST);
     }
@@ -141,10 +144,10 @@ public class RestHandlerTest {
                 os.flush();
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,"Error in request sending",e.getMessage());
             conn.disconnect();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,"Error in request sending",e.getMessage());
             conn.disconnect();
         }
     }

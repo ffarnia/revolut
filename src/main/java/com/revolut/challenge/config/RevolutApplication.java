@@ -5,6 +5,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Fazel on 12/11/2019.
@@ -12,6 +14,7 @@ import java.net.InetSocketAddress;
 public class RevolutApplication {
 
     private static HttpServer embeddedServer;
+    private static final Logger LOGGER = Logger.getLogger(RevolutApplication.class.getName());
 
     public static void main(String[] args) {
         initalizeSerevr();
@@ -21,7 +24,7 @@ public class RevolutApplication {
         try {
             embeddedServer = HttpServer.create(new InetSocketAddress(RevolutConfig.SERVER_PORT), 0);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,"Error in creating Http Server");
         }
         if (embeddedServer != null) {
             embeddedServer.createContext(RevolutConfig.CREATE_ACCOUNT_ENDPOINT, RestHandler.handleCreateAccount());
@@ -30,9 +33,11 @@ public class RevolutApplication {
         }
         embeddedServer.setExecutor(null);
         embeddedServer.start();
+        LOGGER.log(Level.INFO,"Embedded Server start successfully");
     }
 
     public static void shutDownServer() {
         embeddedServer.stop(1);
+        LOGGER.log(Level.INFO, "Embedded Server stop successfully");
     }
 }
