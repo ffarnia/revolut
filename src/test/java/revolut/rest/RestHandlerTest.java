@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revolut.challenge.config.RevolutApplication;
 import com.revolut.challenge.config.RevolutConfig;
-import com.revolut.challenge.model.Account;
-import com.revolut.challenge.model.ResponseStatus;
-import com.revolut.challenge.model.Transaction;
+import com.revolut.challenge.model.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -14,6 +12,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -32,9 +31,9 @@ import static org.junit.Assert.assertEquals;
 public class RestHandlerTest {
 
     private static final String BASE_URL = "http://127.0.0.1:8085";
+    private static final Logger LOGGER = Logger.getLogger(RestHandlerTest.class.getName());
     private static ObjectMapper mapper = new ObjectMapper();
     private static HttpURLConnection conn;
-    private static final Logger LOGGER = Logger.getLogger(RestHandlerTest.class.getName());
 
     @Before
     public void init() {
@@ -44,20 +43,20 @@ public class RestHandlerTest {
     @Test
     public void a_createNewAccount() throws IOException {
         Account account = createSampleAccount(100, 3000, "Fazel Farnia");
-        doPost(RevolutConfig.CREATE_ACCOUNT_ENDPOINT, createRequestJsonBody(account), RevolutConfig.REQUEST_METHOD_POST);
+        doRequest(RevolutConfig.CREATE_ACCOUNT_ENDPOINT, createRequestJsonBody(account), RevolutConfig.REQUEST_METHOD_POST);
         assertEquals(ResponseStatus.CREATED.getCode(), conn.getResponseCode());
     }
 
     @Test
     public void a_createAccountSecond() throws IOException {
         Account account = createSampleAccount(200, 7000, "Ostad Makan");
-        doPost(RevolutConfig.CREATE_ACCOUNT_ENDPOINT, createRequestJsonBody(account), RevolutConfig.REQUEST_METHOD_POST);
+        doRequest(RevolutConfig.CREATE_ACCOUNT_ENDPOINT, createRequestJsonBody(account), RevolutConfig.REQUEST_METHOD_POST);
         assertEquals(ResponseStatus.CREATED.getCode(), conn.getResponseCode());
     }
 
     @Test
     public void checkRepositoryItems() throws IOException {
-        doPost(RevolutConfig.LOAD_ALL_ACCOUNT_ENDPOINT, "", RevolutConfig.REQUEST_METHOD_GET);
+        doRequest(RevolutConfig.LOAD_ALL_ACCOUNT_ENDPOINT, "", RevolutConfig.REQUEST_METHOD_GET);
         List<Account> accounts = mapper.readValue(conn.getInputStream(), ArrayList.class);
         assertEquals(ResponseStatus.OK.getCode(), conn.getResponseCode());
         assertEquals(2, accounts.size());
@@ -76,6 +75,9 @@ public class RestHandlerTest {
         Transaction transactionGiven = createSampleTransaction(100, 100, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
         assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        ResponseError response = createResponseErrorEntity(conn.getErrorStream());
+        assertEquals(104, response.getErrorCode());
+        assertEquals(ConstantMessage.BOTH_ACCOUNT_NUMBER_ARE_SAME, response.getErrorMessage());
     }
 
     @Test
@@ -83,6 +85,9 @@ public class RestHandlerTest {
         Transaction transactionGiven = createSampleTransaction(101, 200, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
         assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        ResponseError response = createResponseErrorEntity(conn.getErrorStream());
+        assertEquals(105, response.getErrorCode());
+        assertEquals(ConstantMessage.FROM_ACCOUNT_NUMBER_NOT_FOUND, response.getErrorMessage());
     }
 
     @Test
@@ -90,6 +95,9 @@ public class RestHandlerTest {
         Transaction transactionGiven = createSampleTransaction(100, 202, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
         assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        ResponseError response = createResponseErrorEntity(conn.getErrorStream());
+        assertEquals(106, response.getErrorCode());
+        assertEquals(ConstantMessage.TO_ACCOUNT_NUMBER_NOT_FOUND, response.getErrorMessage());
     }
 
     @Test
@@ -97,6 +105,9 @@ public class RestHandlerTest {
         Transaction transactionGiven = createSampleTransaction(100, 200, 4001);
         postEntityTransactionForMoneyTransfer(transactionGiven);
         assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        ResponseError response = createResponseErrorEntity(conn.getErrorStream());
+        assertEquals(107, response.getErrorCode());
+        assertEquals(ConstantMessage.WITHDRAW_MORE_THAN_BALANCE, response.getErrorMessage());
     }
 
     @Test
@@ -104,6 +115,9 @@ public class RestHandlerTest {
         Transaction transactionGiven = createSampleTransaction(100, 200, -1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
         assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        ResponseError response = createResponseErrorEntity(conn.getErrorStream());
+        assertEquals(103, response.getErrorCode());
+        assertEquals(ConstantMessage.TRANSFER_AMOUNT_MORE_THAN_ZERO, response.getErrorMessage());
     }
 
     private Account createSampleAccount(Integer accountNumber, Integer balance, String ownerName) {
@@ -128,10 +142,10 @@ public class RestHandlerTest {
     }
 
     private void postEntityTransactionForMoneyTransfer(Transaction transaction) throws JsonProcessingException {
-        doPost(RevolutConfig.TRANSFER_MONEY_ENDPOINT, createRequestJsonBody(transaction), RevolutConfig.REQUEST_METHOD_POST);
+        doRequest(RevolutConfig.TRANSFER_MONEY_ENDPOINT, createRequestJsonBody(transaction), RevolutConfig.REQUEST_METHOD_POST);
     }
 
-    private void doPost(String endPoint, String input, String requestMethod) {
+    private void doRequest(String endPoint, String input, String requestMethod) {
         try {
             URL url = new URL(BASE_URL + endPoint);
             conn = (HttpURLConnection) url.openConnection();
@@ -144,12 +158,16 @@ public class RestHandlerTest {
                 os.flush();
             }
         } catch (MalformedURLException e) {
-            LOGGER.log(Level.SEVERE,"Error in request sending",e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error in request sending", e.getMessage());
             conn.disconnect();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"Error in request sending",e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error in request sending", e.getMessage());
             conn.disconnect();
         }
+    }
+
+    private ResponseError createResponseErrorEntity(InputStream inputStream) throws IOException {
+        return mapper.readValue(inputStream, ResponseError.class);
     }
 
     @After
