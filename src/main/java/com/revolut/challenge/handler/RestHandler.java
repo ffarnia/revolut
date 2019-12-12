@@ -31,7 +31,7 @@ public class RestHandler {
                 try {
                     service.saveOrUpdate(requestAccount);
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()));
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()),ResponseStatus.INTERNAL_ERROR.getCode());
                 }
                 exchange.sendResponseHeaders(ResponseStatus.CREATED.getCode(), -1);
             } else {
@@ -41,16 +41,16 @@ public class RestHandler {
         };
     }
 
-    public static HttpHandler handleFetchAllAccount() throws IOException {
+    public static HttpHandler handleFetchAllAccount(){
         return exchange -> {
             if (exchange.getRequestMethod().equalsIgnoreCase(RevolutConfig.REQUEST_METHOD_GET)) {
                 List<Account> accounts = null;
                 try {
                     accounts = service.loadAllAccounts();
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()));
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.INTERNAL_ERROR.getCode());
                 }
-                sendResponse(exchange, accounts);
+                sendResponse(exchange, accounts,ResponseStatus.OK.getCode());
             } else {
                 exchange.sendResponseHeaders(ResponseStatus.METHOD_NOT_ALLOWED.getCode(), -1);
             }
@@ -70,7 +70,7 @@ public class RestHandler {
                 try {
                     service.transferMoney(requestTransaction);
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()));
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.INTERNAL_ERROR.getCode());
                 }
                 exchange.sendResponseHeaders(ResponseStatus.OK.getCode(), -1);
             } else {
@@ -80,10 +80,10 @@ public class RestHandler {
         };
     }
 
-    private static void sendResponse(HttpExchange exchange, Object responseEntity) throws IOException {
+    private static void sendResponse(HttpExchange exchange, Object responseEntity,int responseStatusCode) throws IOException {
         byte[] response = mapper.writeValueAsBytes(responseEntity);
         exchange.getResponseHeaders().set(RevolutConfig.CONTENT_TYPE, RevolutConfig.CONTENT_TYPE_VALUE);
-        exchange.sendResponseHeaders(ResponseStatus.OK.getCode(), response.length);
+        exchange.sendResponseHeaders(responseStatusCode, response.length);
         OutputStream output = exchange.getResponseBody();
         output.write(response);
         output.flush();

@@ -13,7 +13,11 @@ public class RevolutApplication {
 
     private static HttpServer embeddedServer;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        initalizeSerevr();
+    }
+
+    public static void initalizeSerevr() {
         try {
             embeddedServer = HttpServer.create(new InetSocketAddress(RevolutConfig.SERVER_PORT), 0);
         } catch (IOException e) {
@@ -26,6 +30,9 @@ public class RevolutApplication {
         }
         embeddedServer.setExecutor(null);
         embeddedServer.start();
-        System.out.println("Server started");
+    }
+
+    public static void shutDownServer() {
+        embeddedServer.stop(1);
     }
 }

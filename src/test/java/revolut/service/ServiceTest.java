@@ -69,11 +69,8 @@ public class ServiceTest {
 
     @Test(expected = RevolutException.class)
     public void transferMoney_whenSameAccountNumberGiven() {
-        Account fromAccountGiven = createSampleAccount(100, 4000, "Fazel Farnia");
-        Account toAccountGiven = createSampleAccount(100, 7000, "Ali Razeghi");
-        service.saveOrUpdate(fromAccountGiven);
-        service.saveOrUpdate(toAccountGiven);
-        Transaction transactionGiven = createSampleTransaction(100, 200, 1);
+        prepareAccountsForTransfer();
+        Transaction transactionGiven = createSampleTransaction(100, 100, 1);
         service.transferMoney(transactionGiven);
     }
 
