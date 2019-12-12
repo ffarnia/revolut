@@ -1,8 +1,9 @@
 package com.revolut.challenge.repository;
 
+import com.revolut.challenge.exception.InvalidRequestException;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.ConstantMessage;
-import com.revolut.challenge.model.RevolutException;
+import com.revolut.challenge.exception.RevolutException;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class InMemoryRepository {
         if (account.getBalance().intValue() > 0) {
             repository.put(account.getAccountNumber(), account);
         }else {
-            throw new RevolutException(109, ConstantMessage.BALANCE_MORE_THAN_ZERO);
+            throw new InvalidRequestException(102, ConstantMessage.BALANCE_MORE_THAN_ZERO);
         }
     }
 

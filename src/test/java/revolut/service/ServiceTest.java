@@ -1,7 +1,8 @@
 package revolut.service;
 
+import com.revolut.challenge.exception.InvalidRequestException;
+import com.revolut.challenge.exception.NotFoundException;
 import com.revolut.challenge.model.Account;
-import com.revolut.challenge.model.RevolutException;
 import com.revolut.challenge.model.Transaction;
 import com.revolut.challenge.service.Service;
 import com.revolut.challenge.service.ServiceImpl;
@@ -34,13 +35,13 @@ public class ServiceTest {
         service.saveOrUpdate(givenAccount);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = InvalidRequestException.class)
     public void createNewAccountAndStoreInMemory_whenInvalidDataGiven() {
         Account givenAccount = createSampleAccount(100, 0, "Fazel Farnia");
         service.saveOrUpdate(givenAccount);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = NotFoundException.class)
     public void checkRepositoryIsEmpty_whenNoAccountAdded() {
         service.loadAllAccounts();
     }
@@ -67,35 +68,35 @@ public class ServiceTest {
 
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = InvalidRequestException.class)
     public void transferMoney_whenSameAccountNumberGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 100, 1);
         service.transferMoney(transactionGiven);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = NotFoundException.class)
     public void transferMoney_whenInvalidFromAccountNumberGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(101, 200, 1);
         service.transferMoney(transactionGiven);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = NotFoundException.class)
     public void transferMoney_whenInvalidToAccountNumberGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 202, 1);
         service.transferMoney(transactionGiven);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = InvalidRequestException.class)
     public void transferMoney_whenWithdrawMoreThanBalanceGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 200, 4001);
         service.transferMoney(transactionGiven);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = InvalidRequestException.class)
     public void transferMoney_whenInvalidAmountGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 200, -1);

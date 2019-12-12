@@ -1,4 +1,4 @@
-package com.revolut.challenge.model;
+package com.revolut.challenge.exception;
 
 /**
  * Created by Fazel on 12/11/2019.
@@ -6,7 +6,6 @@ package com.revolut.challenge.model;
 public class RevolutException extends RuntimeException {
 
     private int code;
-    private String message;
 
     public RevolutException(int code, String message) {
         super(message);

@@ -1,7 +1,7 @@
 package revolut.repository;
 
+import com.revolut.challenge.exception.InvalidRequestException;
 import com.revolut.challenge.model.Account;
-import com.revolut.challenge.model.RevolutException;
 import com.revolut.challenge.repository.InMemoryRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class RepositoryTest {
         repository.createAccount(givenAccount);
     }
 
-    @Test(expected = RevolutException.class)
+    @Test(expected = InvalidRequestException.class)
     public void createNewAccountAndStoreInMemory_whenInvalidDataGiven() {
         Account givenAccount = createSampleAccount(100, 0, "Fazel Farnia");
         repository.createAccount(givenAccount);

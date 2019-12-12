@@ -1,8 +1,10 @@
 package com.revolut.challenge.service;
 
+import com.revolut.challenge.exception.InvalidRequestException;
+import com.revolut.challenge.exception.NotFoundException;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.ConstantMessage;
-import com.revolut.challenge.model.RevolutException;
+import com.revolut.challenge.exception.RevolutException;
 import com.revolut.challenge.model.Transaction;
 import com.revolut.challenge.repository.InMemoryRepository;
 
@@ -24,7 +26,7 @@ public class ServiceImpl implements Service {
         if (account.getBalance() > 0) {
             repository.createAccount(account);
         } else {
-            throw new RevolutException(102, ConstantMessage.BALANCE_MORE_THAN_ZERO);
+            throw new InvalidRequestException(102, ConstantMessage.BALANCE_MORE_THAN_ZERO);
         }
     }
 
@@ -32,7 +34,7 @@ public class ServiceImpl implements Service {
     public List<Account> loadAllAccounts() {
         List<Account> accountList = repository.loadAllAccounts();
         if (accountList.isEmpty()) {
-            throw new RevolutException(101, ConstantMessage.EMPTY_ACCOUNT_LIST);
+            throw new NotFoundException(101, ConstantMessage.EMPTY_ACCOUNT_LIST);
         } else return accountList;
     }
 
@@ -41,14 +43,14 @@ public class ServiceImpl implements Service {
         validateRequestTransaction(transaction);
         Account fromAccount = repository.loadByAccountNumber(transaction.getFromAccountNumber());
         if (fromAccount == null) {
-            throw new RevolutException(105, ConstantMessage.FROM_ACCOUNT_NUMBER_NOT_FOUND);
+            throw new NotFoundException(105, ConstantMessage.FROM_ACCOUNT_NUMBER_NOT_FOUND);
         }
         Account toAccount = repository.loadByAccountNumber(transaction.getToAccountNumber());
         if (toAccount == null) {
-            throw new RevolutException(106, ConstantMessage.TO_ACCOUNT_NUMBER_NOT_FOUND);
+            throw new NotFoundException(106, ConstantMessage.TO_ACCOUNT_NUMBER_NOT_FOUND);
         }
         if (fromAccount.getBalance().intValue() < transaction.getAmount()) {
-            throw new RevolutException(107, ConstantMessage.WITHDRAW_MORE_THAN_BALANCE);
+            throw new InvalidRequestException(107, ConstantMessage.WITHDRAW_MORE_THAN_BALANCE);
         }
         synchronized (this) {
             fromAccount.setBalance(fromAccount.getBalance() - transaction.getAmount());
@@ -60,10 +62,10 @@ public class ServiceImpl implements Service {
 
     private void validateRequestTransaction(Transaction requestTransaction) {
         if (requestTransaction.getAmount() <= 0) {
-            throw new RevolutException(103, ConstantMessage.TRANSFER_AMOUNT_MORE_THAN_ZERO);
+            throw new InvalidRequestException(103, ConstantMessage.TRANSFER_AMOUNT_MORE_THAN_ZERO);
         }
         if (requestTransaction.getFromAccountNumber().equals(requestTransaction.getToAccountNumber())) {
-            throw new RevolutException(104, ConstantMessage.BOTH_ACCOUNT_NUMBER_ARE_SAME);
+            throw new InvalidRequestException(104, ConstantMessage.BOTH_ACCOUNT_NUMBER_ARE_SAME);
         }
     }
 

@@ -38,6 +38,5 @@ public class RevolutApplication {
 
     public static void shutDownServer() {
         embeddedServer.stop(1);
-        LOGGER.log(Level.INFO, "Embedded Server stop successfully");
     }
 }

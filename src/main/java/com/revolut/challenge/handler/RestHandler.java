@@ -2,6 +2,7 @@ package com.revolut.challenge.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revolut.challenge.config.RevolutConfig;
+import com.revolut.challenge.exception.RevolutException;
 import com.revolut.challenge.model.*;
 import com.revolut.challenge.service.ServiceImpl;
 import com.sun.net.httpserver.HttpExchange;
@@ -31,7 +32,7 @@ public class RestHandler {
                 try {
                     service.saveOrUpdate(requestAccount);
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()),ResponseStatus.INTERNAL_ERROR.getCode());
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.INTERNAL_ERROR.getCode());
                 }
                 exchange.sendResponseHeaders(ResponseStatus.CREATED.getCode(), -1);
             } else {
