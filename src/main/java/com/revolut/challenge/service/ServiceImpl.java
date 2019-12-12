@@ -47,13 +47,15 @@ public class ServiceImpl implements Service {
         if (toAccount == null) {
             throw new RevolutException(106, ConstantMessage.TO_ACCOUNT_NUMBER_NOT_FOUND);
         }
-        if (fromAccount.getBalance() < transaction.getAmount()) {
+        if (fromAccount.getBalance().intValue() < transaction.getAmount()) {
             throw new RevolutException(107, ConstantMessage.WITHDRAW_MORE_THAN_BALANCE);
         }
-        fromAccount.setBalance(fromAccount.getBalance() - transaction.getAmount());
-        toAccount.setBalance(toAccount.getBalance() + transaction.getAmount());
-        saveOrUpdate(fromAccount);
-        saveOrUpdate(toAccount);
+        synchronized (this) {
+            fromAccount.setBalance(fromAccount.getBalance() - transaction.getAmount());
+            toAccount.setBalance(toAccount.getBalance() + transaction.getAmount());
+            saveOrUpdate(fromAccount);
+            saveOrUpdate(toAccount);
+        }
     }
 
     private void validateRequestTransaction(Transaction requestTransaction) {

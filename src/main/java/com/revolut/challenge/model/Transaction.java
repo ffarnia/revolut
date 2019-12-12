@@ -13,11 +13,23 @@ public class Transaction {
         return fromAccountNumber;
     }
 
+    public void setFromAccountNumber(Integer fromAccountNumber) {
+        this.fromAccountNumber = fromAccountNumber;
+    }
+
     public Integer getToAccountNumber() {
         return toAccountNumber;
     }
 
+    public void setToAccountNumber(Integer toAccountNumber) {
+        this.toAccountNumber = toAccountNumber;
+    }
+
     public Integer getAmount() {
         return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }
