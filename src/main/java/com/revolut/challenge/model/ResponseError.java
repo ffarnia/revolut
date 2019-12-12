@@ -8,6 +8,9 @@ public class ResponseError {
     private int errorCode;
     private String errorMessage;
 
+    public ResponseError() {
+    }
+
     public ResponseError(int errorCode, String errorMessage) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
