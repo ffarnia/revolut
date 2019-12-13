@@ -1,6 +1,6 @@
 **Revolut Transfer Money challenge code**
 
-This application is developed by below technologies and languages:
+# This application is developed by below technologies and languages:
 - Java 8
 - Maven
 - Intellij IDEA
@@ -44,7 +44,7 @@ tests uses java.net classes for open connections.
 
 notice: at first create two Account by first endpoint and then call transfer money, then for see the result of previous rest call you can call second endpoint and find modified balances of accounts.
 
-There are 27 test case in 3 different categories:
+# There are 27 test case in 3 different categories:
 1. repository: for testing store and retrieve accounts from hashMap as a in memory repository
 2. service: for testing methods of service implementation, also provide concurrent test for thread safety
 3. rest: for testing rest endpoints, send and response would be json
