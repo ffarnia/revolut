@@ -1,7 +1,7 @@
 package com.revolut.challenge.model;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
  */
 public class ConstantMessage {
 

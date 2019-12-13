@@ -1,7 +1,8 @@
 package com.revolut.challenge.config;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
+ *         All hardcode configuration comes here it works similare to property file
  */
 public class RevolutConfig {
 

@@ -6,7 +6,7 @@ import com.revolut.challenge.model.Transaction;
 import java.util.List;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
  */
 public interface Service {
 

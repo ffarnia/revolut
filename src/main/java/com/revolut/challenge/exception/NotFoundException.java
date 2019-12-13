@@ -1,7 +1,8 @@
 package com.revolut.challenge.exception;
 
 /**
- * Created by Fazel on 12/12/2019.
+ * @author Fazel Farnia
+ *         Check and validate availablity of entities in repository
  */
 public class NotFoundException extends RevolutException {
     public NotFoundException(int code, String message) {

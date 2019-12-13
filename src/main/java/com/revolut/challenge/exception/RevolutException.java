@@ -1,7 +1,9 @@
 package com.revolut.challenge.exception;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
+ *         Custumize all exceptions all application in supersclass and it is a subclass of RuntimeException
+ *         Every exception has a code and message for better understanding
  */
 public class RevolutException extends RuntimeException {
 

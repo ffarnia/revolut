@@ -1,9 +1,7 @@
 package com.revolut.challenge.model;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
  */
 public class Account {
 

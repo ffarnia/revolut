@@ -3,7 +3,6 @@ package com.revolut.challenge.repository;
 import com.revolut.challenge.exception.InvalidRequestException;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.ConstantMessage;
-import com.revolut.challenge.exception.RevolutException;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
+ *         Provide in memory datastructure for storing and retriving accounts
  */
 public class InMemoryRepository {
 
@@ -24,7 +24,7 @@ public class InMemoryRepository {
     public void createAccount(Account account) {
         if (account.getBalance().intValue() > 0) {
             repository.put(account.getAccountNumber(), account);
-        }else {
+        } else {
             throw new InvalidRequestException(102, ConstantMessage.BALANCE_MORE_THAN_ZERO);
         }
     }

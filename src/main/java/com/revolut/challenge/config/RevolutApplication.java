@@ -9,12 +9,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
+ *         Revolut Application where start the server and ready all endpoints for client
  */
 public class RevolutApplication {
 
-    private static HttpServer embeddedServer;
     private static final Logger LOGGER = Logger.getLogger(RevolutApplication.class.getName());
+    private static HttpServer embeddedServer;
 
     public static void main(String[] args) {
         initalizeSerevr();
@@ -24,7 +25,7 @@ public class RevolutApplication {
         try {
             embeddedServer = HttpServer.create(new InetSocketAddress(RevolutConfig.SERVER_PORT), 0);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"Error in creating Http Server");
+            LOGGER.log(Level.SEVERE, "Error in creating Http Server");
         }
         if (embeddedServer != null) {
             embeddedServer.createContext(RevolutConfig.CREATE_ACCOUNT_ENDPOINT, RestHandler.handleCreateAccount());
@@ -33,7 +34,7 @@ public class RevolutApplication {
         }
         embeddedServer.setExecutor(null);
         embeddedServer.start();
-        LOGGER.log(Level.INFO,"Embedded Server start successfully");
+        LOGGER.log(Level.INFO, "Embedded Server start successfully");
     }
 
     public static void shutDownServer() {

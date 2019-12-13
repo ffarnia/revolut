@@ -4,14 +4,14 @@ import com.revolut.challenge.exception.InvalidRequestException;
 import com.revolut.challenge.exception.NotFoundException;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.ConstantMessage;
-import com.revolut.challenge.exception.RevolutException;
 import com.revolut.challenge.model.Transaction;
 import com.revolut.challenge.repository.InMemoryRepository;
 
 import java.util.List;
 
 /**
- * Created by Fazel on 12/11/2019.
+ * @author Fazel Farnia
+ *         Service class responsible for implementing services for endpoints also implement business and logic
  */
 public class ServiceImpl implements Service {
 
