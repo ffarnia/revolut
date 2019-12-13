@@ -1,4 +1,4 @@
-*Revolut Transfer Money challenge code*
+**Revolut Transfer Money challenge code**
 
 ### This application is developed by below technologies and languages:
 - Java 8
