@@ -1,17 +1,13 @@
 **Revolut Transfer Money challenge code**
 
+Design and implement a RESTful API (including data model and the backing implementation) for
+money transfers between accounts.
+
 ### This application is developed by below technologies and languages:
 - Java 8
 - Maven
 - Intellij IDEA
 
----
-
-
-## Get latest source code from Bitbucket
-git clone https://bitbucket.org/ffarnia/revolut.git
-
----
 
 ## Build and run source code
 
