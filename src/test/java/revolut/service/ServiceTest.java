@@ -110,7 +110,7 @@ public class ServiceTest {
         int threads = 3000;
         ExecutorService executorService = Executors.newFixedThreadPool(threads);
         List<Account> accounts = service.loadAllAccounts();
-        assertEquals(1000, accounts.get(0).getBalance().intValue());
+        assertEquals(4000, accounts.get(0).getBalance().intValue());
         for (int i = 0; i < threads; i++) {
             executorService.submit(() -> {
                 Transaction transactionGiven = createSampleTransaction(100, 200, 1);
@@ -120,7 +120,7 @@ public class ServiceTest {
             });
         }
         executorService.shutdown();
-        executorService.awaitTermination(1, TimeUnit.HOURS);
+        executorService.awaitTermination(3, TimeUnit.SECONDS);
         assertEquals(4000, accounts.get(1).getBalance().intValue());
         assertEquals(16000, accounts.get(2).getBalance().intValue());
     }
