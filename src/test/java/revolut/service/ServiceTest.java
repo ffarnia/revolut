@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -108,6 +109,8 @@ public class ServiceTest {
         prepareAccountsForTransferThead();
         int threads = 3000;
         ExecutorService executorService = Executors.newFixedThreadPool(threads);
+        List<Account> accounts = service.loadAllAccounts();
+        assertEquals(1000, accounts.get(0).getBalance().intValue());
         for (int i = 0; i < threads; i++) {
             executorService.submit(() -> {
                 Transaction transactionGiven = createSampleTransaction(100, 200, 1);
@@ -116,9 +119,8 @@ public class ServiceTest {
                 service.transferMoney(transactionGiven2);
             });
         }
-        Thread.sleep(100);
-        List<Account> accounts = service.loadAllAccounts();
-        assertEquals(1000, accounts.get(0).getBalance().intValue());
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.HOURS);
         assertEquals(4000, accounts.get(1).getBalance().intValue());
         assertEquals(16000, accounts.get(2).getBalance().intValue());
     }
