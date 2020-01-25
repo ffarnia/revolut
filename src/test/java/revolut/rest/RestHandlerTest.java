@@ -74,7 +74,7 @@ public class RestHandlerTest {
     public void transferMoney_whenSameAccountNumberGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 100, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        assertEquals(ResponseStatus.UNPROCCESSABLE.getCode(), conn.getResponseCode());
         ResponseError response = createResponseErrorEntity(conn.getErrorStream());
         assertEquals(104, response.getErrorCode());
         assertEquals(ConstantMessage.BOTH_ACCOUNT_NUMBER_ARE_SAME, response.getErrorMessage());
@@ -84,7 +84,7 @@ public class RestHandlerTest {
     public void transferMoney_whenInvalidFromAccountNumberGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(101, 200, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        assertEquals(ResponseStatus.UNPROCCESSABLE.getCode(), conn.getResponseCode());
         ResponseError response = createResponseErrorEntity(conn.getErrorStream());
         assertEquals(105, response.getErrorCode());
         assertEquals(ConstantMessage.FROM_ACCOUNT_NUMBER_NOT_FOUND, response.getErrorMessage());
@@ -94,7 +94,7 @@ public class RestHandlerTest {
     public void transferMoney_whenInvalidToAccountNumberGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 202, 1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        assertEquals(ResponseStatus.UNPROCCESSABLE.getCode(), conn.getResponseCode());
         ResponseError response = createResponseErrorEntity(conn.getErrorStream());
         assertEquals(106, response.getErrorCode());
         assertEquals(ConstantMessage.TO_ACCOUNT_NUMBER_NOT_FOUND, response.getErrorMessage());
@@ -104,7 +104,7 @@ public class RestHandlerTest {
     public void transferMoney_whenWithdrawMoreThanBalanceGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 200, 4001);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        assertEquals(ResponseStatus.UNPROCCESSABLE.getCode(), conn.getResponseCode());
         ResponseError response = createResponseErrorEntity(conn.getErrorStream());
         assertEquals(107, response.getErrorCode());
         assertEquals(ConstantMessage.WITHDRAW_MORE_THAN_BALANCE, response.getErrorMessage());
@@ -114,7 +114,7 @@ public class RestHandlerTest {
     public void transferMoney_whenInvalidAmountGiven() throws IOException {
         Transaction transactionGiven = createSampleTransaction(100, 200, -1);
         postEntityTransactionForMoneyTransfer(transactionGiven);
-        assertEquals(ResponseStatus.INTERNAL_ERROR.getCode(), conn.getResponseCode());
+        assertEquals(ResponseStatus.UNPROCCESSABLE.getCode(), conn.getResponseCode());
         ResponseError response = createResponseErrorEntity(conn.getErrorStream());
         assertEquals(103, response.getErrorCode());
         assertEquals(ConstantMessage.TRANSFER_AMOUNT_MORE_THAN_ZERO, response.getErrorMessage());

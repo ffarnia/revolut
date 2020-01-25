@@ -41,7 +41,7 @@ public class RestHandler {
                 try {
                     service.saveOrUpdate(requestAccount);
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.INTERNAL_ERROR.getCode());
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.UNPROCCESSABLE.getCode());
                 }
                 exchange.sendResponseHeaders(ResponseStatus.CREATED.getCode(), -1);
             } else {
@@ -63,7 +63,7 @@ public class RestHandler {
                 try {
                     accounts = service.loadAllAccounts();
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.INTERNAL_ERROR.getCode());
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.UNPROCCESSABLE.getCode());
                 }
                 sendResponse(exchange, accounts, ResponseStatus.OK.getCode());
             } else {
@@ -91,7 +91,7 @@ public class RestHandler {
                 try {
                     service.transferMoney(requestTransaction);
                 } catch (RevolutException e) {
-                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.INTERNAL_ERROR.getCode());
+                    sendResponse(exchange, new ResponseError(e.getCode(), e.getMessage()), ResponseStatus.UNPROCCESSABLE.getCode());
                 }
                 exchange.sendResponseHeaders(ResponseStatus.OK.getCode(), -1);
             } else {
