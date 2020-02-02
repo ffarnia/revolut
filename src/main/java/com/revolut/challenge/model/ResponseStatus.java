@@ -7,7 +7,6 @@ public enum ResponseStatus {
     OK(200),
     CREATED(201),
     BAD_REQUEST(400),
-    INTERNAL_ERROR(500),
     UNPROCCESSABLE(422),
     METHOD_NOT_ALLOWED(405);
 

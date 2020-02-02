@@ -9,10 +9,7 @@ import com.revolut.challenge.repository.InMemoryRepository;
 
 import java.util.List;
 
-/**
- * @author Fazel Farnia
- *         AccountService class responsible for implementing services for endpoints also implement business and logic
- */
+
 public class AccountServiceImpl extends BaseServiceImpl implements AccountService {
 
     @Override
