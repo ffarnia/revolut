@@ -29,6 +29,10 @@ public class InMemoryRepository {
         }
     }
 
+    public void resetRepository(){
+        repository.clear();
+    }
+
     public List<Account> loadAllAccounts() {
         return repository.values().stream().collect(Collectors.toList());
     }

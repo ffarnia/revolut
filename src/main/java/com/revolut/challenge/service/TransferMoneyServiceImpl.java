@@ -5,38 +5,11 @@ import com.revolut.challenge.exception.NotFoundException;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.ConstantMessage;
 import com.revolut.challenge.model.Transaction;
-import com.revolut.challenge.repository.InMemoryRepository;
-
-import java.util.List;
 
 /**
- * @author Fazel Farnia
- *         Service class responsible for implementing services for endpoints also implement business and logic
+ * Created by Fazel on 1/25/2020.
  */
-public class ServiceImpl implements Service {
-
-    private final InMemoryRepository repository;
-
-    public ServiceImpl() {
-        repository = new InMemoryRepository();
-    }
-
-    @Override
-    public void saveOrUpdate(Account account) {
-        if (account.getBalance() > 0) {
-            repository.createAccount(account);
-        } else {
-            throw new InvalidRequestException(102, ConstantMessage.BALANCE_MORE_THAN_ZERO);
-        }
-    }
-
-    @Override
-    public List<Account> loadAllAccounts() {
-        List<Account> accountList = repository.loadAllAccounts();
-        if (accountList.isEmpty()) {
-            throw new NotFoundException(101, ConstantMessage.EMPTY_ACCOUNT_LIST);
-        } else return accountList;
-    }
+public class TransferMoneyServiceImpl extends BaseServiceImpl implements TransferMoneyService {
 
     @Override
     public void transferMoney(Transaction transaction) {
@@ -55,8 +28,8 @@ public class ServiceImpl implements Service {
         synchronized (this) {
             fromAccount.setBalance(fromAccount.getBalance() - transaction.getAmount());
             toAccount.setBalance(toAccount.getBalance() + transaction.getAmount());
-            saveOrUpdate(fromAccount);
-            saveOrUpdate(toAccount);
+            repository.createAccount(fromAccount);
+            repository.createAccount(toAccount);
         }
     }
 
@@ -68,5 +41,4 @@ public class ServiceImpl implements Service {
             throw new InvalidRequestException(104, ConstantMessage.BOTH_ACCOUNT_NUMBER_ARE_SAME);
         }
     }
-
 }

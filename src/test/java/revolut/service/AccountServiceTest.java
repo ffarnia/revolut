@@ -4,8 +4,11 @@ import com.revolut.challenge.exception.InvalidRequestException;
 import com.revolut.challenge.exception.NotFoundException;
 import com.revolut.challenge.model.Account;
 import com.revolut.challenge.model.Transaction;
-import com.revolut.challenge.service.Service;
-import com.revolut.challenge.service.ServiceImpl;
+import com.revolut.challenge.service.AccountService;
+import com.revolut.challenge.service.AccountServiceImpl;
+import com.revolut.challenge.service.TransferMoneyService;
+import com.revolut.challenge.service.TransferMoneyServiceImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,37 +24,45 @@ import static org.junit.Assert.assertFalse;
 /**
  * Created by Fazel on 12/12/2019.
  */
-public class ServiceTest {
+public class AccountServiceTest {
 
-    private Service service;
+    private AccountServiceImpl accountService;
+    private TransferMoneyServiceImpl transferMoneyService;
 
     @Before
     public void init() {
-        service = new ServiceImpl();
+        accountService = new AccountServiceImpl();
+        transferMoneyService = new TransferMoneyServiceImpl();
+    }
+
+    @After
+    public void preDestroy() {
+        accountService.clearRepository();
+        transferMoneyService.clearRepository();
     }
 
     @Test
     public void createNewAccountAndStoreInMemory_whenCorrectDataGiven() {
         Account givenAccount = createSampleAccount(100, 5000, "Fazel Farnia");
-        service.saveOrUpdate(givenAccount);
+        accountService.saveOrUpdate(givenAccount);
     }
 
     @Test(expected = InvalidRequestException.class)
     public void createNewAccountAndStoreInMemory_whenInvalidDataGiven() {
         Account givenAccount = createSampleAccount(100, 0, "Fazel Farnia");
-        service.saveOrUpdate(givenAccount);
+        accountService.saveOrUpdate(givenAccount);
     }
 
     @Test(expected = NotFoundException.class)
     public void checkRepositoryIsEmpty_whenNoAccountAdded() {
-        service.loadAllAccounts();
+        accountService.loadAllAccounts();
     }
 
     @Test
     public void checkRepositoryItems_whenAccountsAdded() {
-        service.saveOrUpdate(createSampleAccount(100, 5000, "Fazel Farnia"));
-        service.saveOrUpdate(createSampleAccount(200, 6000, "Reza Koosha"));
-        List<Account> accountListGiven = service.loadAllAccounts();
+        accountService.saveOrUpdate(createSampleAccount(100, 5000, "Fazel Farnia"));
+        accountService.saveOrUpdate(createSampleAccount(200, 6000, "Reza Koosha"));
+        List<Account> accountListGiven = accountService.loadAllAccounts();
         assertFalse(accountListGiven.isEmpty());
         assertEquals(2, accountListGiven.size());
         assertEquals(100, accountListGiven.get(0).getAccountNumber().intValue());
@@ -62,8 +73,8 @@ public class ServiceTest {
     public void transferMoneyBetweenAccounts_whenCorrectTransactionGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 200, 1);
-        service.transferMoney(transactionGiven);
-        List<Account> accounts = service.loadAllAccounts();
+        transferMoneyService.transferMoney(transactionGiven);
+        List<Account> accounts = accountService.loadAllAccounts();
         assertEquals(3999, accounts.get(0).getBalance().intValue());
         assertEquals(7001, accounts.get(1).getBalance().intValue());
 
@@ -73,35 +84,35 @@ public class ServiceTest {
     public void transferMoney_whenSameAccountNumberGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 100, 1);
-        service.transferMoney(transactionGiven);
+        transferMoneyService.transferMoney(transactionGiven);
     }
 
     @Test(expected = NotFoundException.class)
     public void transferMoney_whenInvalidFromAccountNumberGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(101, 200, 1);
-        service.transferMoney(transactionGiven);
+        transferMoneyService.transferMoney(transactionGiven);
     }
 
     @Test(expected = NotFoundException.class)
     public void transferMoney_whenInvalidToAccountNumberGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 202, 1);
-        service.transferMoney(transactionGiven);
+        transferMoneyService.transferMoney(transactionGiven);
     }
 
     @Test(expected = InvalidRequestException.class)
     public void transferMoney_whenWithdrawMoreThanBalanceGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 200, 4001);
-        service.transferMoney(transactionGiven);
+        transferMoneyService.transferMoney(transactionGiven);
     }
 
     @Test(expected = InvalidRequestException.class)
     public void transferMoney_whenInvalidAmountGiven() {
         prepareAccountsForTransfer();
         Transaction transactionGiven = createSampleTransaction(100, 200, -1);
-        service.transferMoney(transactionGiven);
+        transferMoneyService.transferMoney(transactionGiven);
     }
 
     @Test
@@ -109,14 +120,14 @@ public class ServiceTest {
         prepareAccountsForTransferThead();
         int threads = 3000;
         ExecutorService executorService = Executors.newFixedThreadPool(threads);
-        List<Account> accounts = service.loadAllAccounts();
+        List<Account> accounts = accountService.loadAllAccounts();
         assertEquals(4000, accounts.get(0).getBalance().intValue());
         for (int i = 0; i < threads; i++) {
             executorService.submit(() -> {
                 Transaction transactionGiven = createSampleTransaction(100, 200, 1);
                 Transaction transactionGiven2 = createSampleTransaction(200, 300, 2);
-                service.transferMoney(transactionGiven);
-                service.transferMoney(transactionGiven2);
+                transferMoneyService.transferMoney(transactionGiven);
+                transferMoneyService.transferMoney(transactionGiven2);
             });
         }
         executorService.shutdown();
@@ -144,13 +155,13 @@ public class ServiceTest {
     private void prepareAccountsForTransfer() {
         Account fromAccountGiven = createSampleAccount(100, 4000, "Fazel Farnia");
         Account toAccountGiven = createSampleAccount(200, 7000, "Ali Razeghi");
-        service.saveOrUpdate(fromAccountGiven);
-        service.saveOrUpdate(toAccountGiven);
+        accountService.saveOrUpdate(fromAccountGiven);
+        accountService.saveOrUpdate(toAccountGiven);
     }
 
     private void prepareAccountsForTransferThead() {
         prepareAccountsForTransfer();
         Account anotherAccountGiven = createSampleAccount(300, 10000, "Hajesmal");
-        service.saveOrUpdate(anotherAccountGiven);
+        accountService.saveOrUpdate(anotherAccountGiven);
     }
 }
